@@ -1,6 +1,6 @@
 {
   "name": "polymer-sortablejs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Polymer binding to SortableJS.",
   "main": "polymer-sortable.js",
   "scripts": {
