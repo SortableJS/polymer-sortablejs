@@ -1,7 +1,3 @@
-# THIS PROJECT NEEDS A MAINTAINER.
-
----
-
 polymer-sortablejs
 -------------------
 A Polymer binding to [SortableJS](https://github.com/RubaXa/Sortable/).

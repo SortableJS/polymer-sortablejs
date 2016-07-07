@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/SortableJS/polymer-sortablejs/issues"
   },
-  "homepage": "https://github.com/SortableJS/polymer-sortablejs#readme"
+  "homepage": "https://github.com/SortableJS/polymer-sortablejs#readme",
+  "dependencies": {
+    "sortablejs": "^1.4.2"
+  }
 }
