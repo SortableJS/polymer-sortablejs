@@ -1,25 +1,25 @@
 polymer-sortablejs
 -------------------
+
 A Polymer binding to [SortableJS](https://github.com/RubaXa/Sortable/).
 
 Demo: http://rubaxa.github.io/Sortable/
 
-
-<a name="polymer"></a>
-### Support Polymer
+### Usage
 
 ```html
 
-<link rel="import" href="path/to/polymer-sortablejs/polymer-sortablejs.html"/>
+<link rel="import" href="bower_components/polymer-sortablejs.html"/>
 
-<sortable-js handle=".handle">
-  <template is="dom-repeat" items={{names}}>
+<sortable-js>
+  <template is="dom-repeat" items={{items}}>
     <div>{{item}}</div>
   </template>
 </sortable-js>
 ```
 
+### Install
 
-### NPM
-
- `npm install polymer-sortablejs`
+```
+$ bower install SortableJS/polymer-sortablejs
+```
