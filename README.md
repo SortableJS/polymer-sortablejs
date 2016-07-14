@@ -21,5 +21,5 @@ Demo: http://rubaxa.github.io/Sortable/
 ### Install
 
 ```
-$ bower install SortableJS/polymer-sortablejs
+$ bower install polymer-sortablejs
 ```
