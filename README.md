@@ -9,7 +9,7 @@ Demo: http://rubaxa.github.io/Sortable/
 
 ```html
 
-<link rel="import" href="../sortabljs/polymer-sortablejs.html" />
+<link rel="import" href="bower_components/polymer-sortablejs/polymer-sortablejs.html"/>
 
 <sortable-js>
   <template is="dom-repeat" items={{items}}>
