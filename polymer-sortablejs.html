@@ -101,6 +101,10 @@
         },
 
         onRemove: function(e) {
+          // Donot remove if group.pull is clone
+          if (e.target.group.pull === 'clone') {
+            return false;
+          }
           if (template) {
             template.splice("items", e.oldIndex, 1)[0];
           }
