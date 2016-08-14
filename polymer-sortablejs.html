@@ -94,8 +94,9 @@
           if (template) {
             var froms = e.from.querySelectorAll("template[is='dom-repeat']");
             var from = froms[froms.length-1];
-            var item = from.items[e.oldIndex];
-            template.splice("items", e.newIndex, 0, item);
+            var model = from.modelForElement(e.item);
+            template.splice("items", e.newIndex, 0, model.item);
+            e.model = model;
           }
           _this.fire("add", e);
         },
@@ -106,7 +107,8 @@
             return false;
           }
           if (template) {
-            template.splice("items", e.oldIndex, 1)[0];
+            var item = template.splice("items", e.oldIndex, 1)[0];
+            e.model = {item: item};
           }
           _this.fire("remove", e);
         },
