@@ -13,6 +13,8 @@
 
     properties: {
       group             : { type: Object, value: () => {return {name: Math.random()};}, observer: "groupChanged" },
+      disableSort       : { type: Boolean, value: false, observer: "disableSortChanged" },
+      //sort has been deprecated in favour of disableSort see https://github.com/SortableJS/polymer-sortablejs/issues/22
       sort              : { type: Boolean, value: true, observer: "sortChanged" },
       disabled          : { type: Boolean, value: false, observer: "disabledChanged" },
       store             : { type: Object, value: null, observer: "storeChanged" },
@@ -73,6 +75,9 @@
       Object.keys(this.properties).forEach(function(key) {
         options[key] = this[key];
       }.bind(this));
+      
+      //override sort with disableSort as sort doesn't work as expected anyway during config via markup. See https://github.com/SortableJS/polymer-sortablejs/issues/22
+      options.sort = !this.disableSort;
 
       var _this = this;
       var eventCallbacks = {
@@ -161,14 +166,22 @@
       }
       this.sortable && this.sortable.option("group",  value );
     },
-    sortChanged              : function(value) { this.sortable && this.sortable.option("sort", value); },
+    disableSortChanged       : function(value) { this.sortable && this.sortable.option("sort", !value); },
+    sortChanged              : function(value) { 
+
+      this.sortable && this.sortable.option("sort", value);
+      
+      if(this.sortable && typeof window.console !== "undefined" && typeof window.console.log !== "undefined") {
+        console.log("The sort proprty has been deprecated as it cannot be used with with polymer via markup due to boolean's not supporting the default true, please use the disableSort property instead. See https://github.com/SortableJS/polymer-sortablejs/issues/22 for more information."); 
+      } 
+    },
     disabledChanged          : function(value) { this.sortable && this.sortable.option("disabled", value); },
     storeChanged             : function(value) { this.sortable && this.sortable.option("store", value); },
     handleChanged            : function(value) { this.sortable && this.sortable.option("handle", value); },
-    scrollChanged           : function(value) { this.sortable && this.sortable.option("scroll", value); },
+    scrollChanged            : function(value) { this.sortable && this.sortable.option("scroll", value); },
     scrollSensitivityChanged : function(value) { this.sortable && this.sortable.option("scrollSensitivity", value); },
     scrollSpeedChanged       : function(value) { this.sortable && this.sortable.option("scrollSpeed", value); },
-    draggableChanged        : function(value) { this.sortable && this.sortable.option("draggable", value); },
+    draggableChanged         : function(value) { this.sortable && this.sortable.option("draggable", value); },
     ghostClassChanged        : function(value) { this.sortable && this.sortable.option("ghostClass", value); },
     chosenClassChanged       : function(value) { this.sortable && this.sortable.option("chosenClass", value); },
     ignoreChanged            : function(value) { this.sortable && this.sortable.option("ignore", value); },
