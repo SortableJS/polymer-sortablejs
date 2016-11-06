@@ -166,14 +166,27 @@
       }
       this.sortable && this.sortable.option("group",  value );
     },
-    disableSortChanged       : function(value) { this.sortable && this.sortable.option("sort", !value); },
+    disableSortChanged       : function(value) { 
+      this.sortable && this.sortable.option("sort", !value);
+      this.sort = !value; 
+    },
     sortChanged              : function(value) { 
+        
+      if(this.sortable) {
+        //Whilst the sort property is deprecated, keep disablesort and sort in sync for backwards compatibility.
+        var alreadyChanged = this.sortable.option("sort") == value;
 
-      this.sortable && this.sortable.option("sort", value);
-      
-      if(this.sortable && typeof window.console !== "undefined" && typeof window.console.log !== "undefined") {
-        console.log("The sort proprty has been deprecated as it cannot be used with with polymer via markup due to boolean's not supporting the default true, please use the disableSort property instead. See https://github.com/SortableJS/polymer-sortablejs/issues/22 for more information."); 
-      } 
+        if(!alreadyChanged) {
+          this.sortable.option("sort", value);
+
+          if(this.sortable && typeof window.console !== "undefined" && typeof window.console.log !== "undefined") {
+            console.log("The sort property has been deprecated as it cannot be used with with polymer via markup due to boolean's not supporting the default true, please use the disableSort property instead. See https://github.com/SortableJS/polymer-sortablejs/issues/22 for more information."); 
+          }
+
+          this.disableSort = !value;
+        }
+      }
+
     },
     disabledChanged          : function(value) { this.sortable && this.sortable.option("disabled", value); },
     storeChanged             : function(value) { this.sortable && this.sortable.option("store", value); },
