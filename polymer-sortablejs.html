@@ -12,7 +12,7 @@
     is: "sortable-js",
 
     properties: {
-      group             : { type: String, value: function() { return Math.random(); }, observer: "groupChanged" },
+      group             : { type: Object, value: () => {return {name: Math.random()};}, observer: "groupChanged" },
       sort              : { type: Boolean, value: true, observer: "sortChanged" },
       disabled          : { type: Boolean, value: false, observer: "disabledChanged" },
       store             : { type: Object, value: null, observer: "storeChanged" },
@@ -110,8 +110,9 @@
           if (template && !_this.delegateAdd) {
             var froms = e.from.querySelectorAll("template[is='dom-repeat']");
             var from = froms[froms.length-1];
-            var item = from.items[e.oldIndex];
-            template.splice("items", e.newIndex, 0, item);
+            var model = from.modelForElement(e.item);
+            template.splice("items", e.newIndex, 0, model.item);
+            e.model = model;
           }
           _this.fire("add", e);
         },
@@ -121,8 +122,11 @@
           if (e.target.group.pull === 'clone') {
             return false;
           }
-          if (template && !_this.delegateRemove) {
-            template.splice("items", e.oldIndex, 1)[0];
+            if (template) {
+            if (!_this.delegateRemove) {
+              var item = template.splice("items", e.oldIndex, 1)[0];
+            }
+            e.model = {item: item};
           }
           _this.fire("remove", e);
         },
@@ -169,7 +173,12 @@
       }
     },
 
-    groupChanged             : function(value) { this.sortable && this.sortable.option("group", value); },
+    groupChanged             : function(value) { 
+      if(typeof(value) === 'string') {
+        return this.set('group', {name: value});
+      }
+      this.sortable && this.sortable.option("group",  value );
+    },
     sortChanged              : function(value) { this.sortable && this.sortable.option("sort", value); },
     disabledChanged          : function(value) { this.sortable && this.sortable.option("disabled", value); },
     storeChanged             : function(value) { this.sortable && this.sortable.option("store", value); },
