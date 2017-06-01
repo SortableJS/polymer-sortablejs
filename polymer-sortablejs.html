@@ -32,7 +32,23 @@
       fallbackClass     : { type: String, value: "sortable-fallback", observer: "fallbackClassChanged" },
       fallbackOnBody    : { type: Boolean, value: false, observer: "fallbackOnBodyChanged" },
       draggable         : {},
-      scroll            : {}
+      scroll            : {},
+      
+      /**
+       * `delegateAdd` set true to delegate adding item to the template to other part of the application  
+       */
+       delegateAdd: {
+        type: Boolean,
+        value: false
+       },
+
+       /**
+       * `delegateAdd` set true to delegate removing item to the template to other part of the application  
+       */
+       delegateRemove: {
+        type: Boolean,
+        value: false
+       }
     },
 
     created: function() {
@@ -79,19 +95,19 @@
         onUpdate: function (e) {
           if (template) {
             template.splice("items", e.newIndex, 0, template.splice("items", e.oldIndex, 1)[0]);
-						/*
+            /*
             if (manuallyHandleUpdateEvents) {
               template.items.splice(e.newIndex, 0, template.items.splice(e.oldIndex, 1)[0]);
             } else {
               template.splice("items", e.newIndex, 0, template.splice("items", e.oldIndex, 1)[0]);
             }
-						*/
+            */
           }
           _this.fire("update", e);
         },
 
         onAdd: function(e) {
-          if (template) {
+          if (template && !_this.delegateAdd) {
             var froms = e.from.querySelectorAll("template[is='dom-repeat']");
             var from = froms[froms.length-1];
             var model = from.modelForElement(e.item);
@@ -106,8 +122,10 @@
           if (e.target.group.pull === 'clone') {
             return false;
           }
-          if (template) {
-            var item = template.splice("items", e.oldIndex, 1)[0];
+            if (template) {
+            if (!_this.delegateRemove) {
+              var item = template.splice("items", e.oldIndex, 1)[0];
+            }
             e.model = {item: item};
           }
           _this.fire("remove", e);
