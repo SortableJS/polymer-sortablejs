@@ -3,7 +3,7 @@
 
 <dom-module id="sortable-js">
   <template>
-    <content></content>
+    <slot></slot>
   </template>
 </dom-module>
 <script>
@@ -12,7 +12,7 @@
     is: "sortable-js",
 
     properties: {
-      group             : { type: Object, value: () => {return {name: Math.random()};}, observer: "groupChanged" },
+      group             : { type: String, value: function() { return Math.random(); }, observer: "groupChanged" },
       sort              : { type: Boolean, value: true, observer: "sortChanged" },
       disabled          : { type: Boolean, value: false, observer: "disabledChanged" },
       store             : { type: Object, value: null, observer: "storeChanged" },
@@ -66,7 +66,12 @@
 
 
     initialize: function() {
-      var templates = this.querySelectorAll("template[is='dom-repeat']");
+      var templates = [];
+      if (Polymer.Element) {
+        templates = this.querySelectorAll("dom-repeat");
+      } else {
+        templates = this.querySelectorAll("template[is='dom-repeat']");
+      }
       var template = templates[templates.length-1];
 
       var options = {};
@@ -78,7 +83,9 @@
       var eventCallbacks = {
         onUpdate: function (e) {
           if (template) {
-            template.splice("items", e.newIndex, 0, template.splice("items", e.oldIndex, 1)[0]);
+            var items = template.items;
+            items.splice(e.newIndex, 0, items.splice(e.oldIndex, 1)[0]);
+            template.set("items", items);
 						/*
             if (manuallyHandleUpdateEvents) {
               template.items.splice(e.newIndex, 0, template.items.splice(e.oldIndex, 1)[0]);
@@ -94,21 +101,15 @@
           if (template) {
             var froms = e.from.querySelectorAll("template[is='dom-repeat']");
             var from = froms[froms.length-1];
-            var model = from.modelForElement(e.item);
-            template.splice("items", e.newIndex, 0, model.item);
-            e.model = model;
+            var item = from.items[e.oldIndex];
+            template.splice("items", e.newIndex, 0, item);
           }
           _this.fire("add", e);
         },
 
         onRemove: function(e) {
-          // Donot remove if group.pull is clone
-          if (e.target.group.pull === 'clone') {
-            return false;
-          }
           if (template) {
-            var item = template.splice("items", e.oldIndex, 1)[0];
-            e.model = {item: item};
+            template.splice("items", e.oldIndex, 1)[0];
           }
           _this.fire("remove", e);
         },
@@ -155,12 +156,7 @@
       }
     },
 
-    groupChanged             : function(value) { 
-      if(typeof(value) === 'string') {
-        return this.set('group', {name: value});
-      }
-      this.sortable && this.sortable.option("group",  value );
-    },
+    groupChanged             : function(value) { this.sortable && this.sortable.option("group", value); },
     sortChanged              : function(value) { this.sortable && this.sortable.option("sort", value); },
     disabledChanged          : function(value) { this.sortable && this.sortable.option("disabled", value); },
     storeChanged             : function(value) { this.sortable && this.sortable.option("store", value); },
