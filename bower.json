@@ -1,6 +1,6 @@
 {
   "name": "polymer-sortablejs",
-  "homepage": "https://github.com/SortableJS/polymer-sortablejs",
+  "homepage": "https://github.com/KanoComponents/polymer-sortablejs",
   "main": "sortablejs.html",
   "authors": [
     "Guten Ye <ywzhaifei@gmail.com>"
@@ -25,7 +25,7 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "polymer/polymer#^1.6.0",
+    "polymer": "polymer/polymer#1.9 - 2",
     "Sortable": "sortablejs#^1.4.2"
   }
 }
