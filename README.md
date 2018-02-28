@@ -1,10 +1,7 @@
 polymer-sortablejs
 -------------------
 
-[![Gitter][gitter-image]][gitter-url]
-
-
-A Polymer binding to [SortableJS](https://github.com/RubaXa/Sortable/).
+A Polymer binding to [SortableJS](https://github.com/RubaXa/Sortable/). Forked by Kano Computing to make it work in Polymer 2.
 
 Demo: http://rubaxa.github.io/Sortable/
 
@@ -24,8 +21,5 @@ Demo: http://rubaxa.github.io/Sortable/
 ### Install
 
 ```
-$ bower install polymer-sortablejs
+$ bower install KanoComponents/polymer-sortablejs#master
 ```
-
-[gitter-image]: http://img.shields.io/badge/+%20GITTER-JOIN%20CHAT%20%E2%86%92-1DCE73.svg?style=flat-square
-[gitter-url]: https://gitter.im/sortable-js/polymer-sortablejs
