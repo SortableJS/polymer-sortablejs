@@ -13,7 +13,8 @@ const fsCallbacks = require('fs'),
 const fs = {
   stat: promisify(fsCallbacks.stat),
   readFile: promisify(fsCallbacks.readFile),
-  writeFile: promisify(fsCallbacks.writeFile)
+  writeFile: promisify(fsCallbacks.writeFile),
+  exists: fsCallbacks.existsSync
 };
 
 // From https://stackoverflow.com/a/17676794/6166832
@@ -28,39 +29,43 @@ function donwload(url, dest) {
 }
 
 
-// Look for bower_components
-fs.stat('bower_components/Sortable/Sortable.js').then(stat => {
-  loadFromFile('bower_components/Sortable/Sortable.js');
-}, err => {
-  if (err.code !== 'ENOENT') throw err
-    else {
-      // Look a level deeper
-      fs.stat('../bower_components/Sortable/Sortable.js').then(stat => {
-        loadFromFile('../bower_components/Sortable/Sortable.js');
-      }, err => {
-        if (err.code !== 'ENOENT') throw err
-        // Look in node_modules
-          else fs.stat('node_modules/Sortable/Sortable.js').then(stat => {
-            loadFromFile('node_modules/Sortable/Sortable.js');
-          }, err => {
-            if (err.code !== 'ENOENT') throw err
-            // Look in node_modules but deeper
-              else fs.stat('../node_modules/Sortable/Sortable.js').then(stat => {
-                loadFromFile('../node_modules/Sortable/Sortable.js');
-              }, err => {
-                if (err.code !== 'ENOENT') throw err
-                  else {
-                    downloadFromGit();
-                  }
-              });
-          });
-      });
+// Helper for folder lookup
+function generatePath(depth, ending) {
+  const generatedDepth = new Array(depth).fill('..');
+  return path.join(__dirname, ...generatedDepth, ending);
+}
+
+let found = false;
+
+// Look in bower_components
+for (let depth = 0; depth <= 2; depth++) {
+  if (fs.exists(generatePath(depth, 'bower_components/Sortable/Sortable.js'))) {
+    found = true;
+    console.log('Building from version in bower_components');
+    loadFromFile(generatePath(depth, 'bower_components/Sortable/Sortable.js'));
+    break;
+  }
+}
+
+if (!found) {
+  // Look in node_modules
+  for (let depth = 0; depth <= 2; depth++) {
+    if (fs.exists(generatePath(depth, 'node_modules/Sortable/Sortable.js'))) {
+      found = true;
+      console.log('Building from version in node_modules');
+      loadFromFile(generatePath(depth, 'node_modules/Sortable/Sortable.js'));
+      break;
     }
-});
+  }
+}
+
+if (!found) {
+  downloadFromGit();
+}
 
 
 async function loadFromFile(filePath) {
-  const file = await fs.readFile(path.join(__dirname, filePath), 'utf8');
+  const file = await fs.readFile(filePath, 'utf8');
   proceed(file);
 }
 
@@ -81,6 +86,7 @@ async function downloadFromGit() {
     console.trace(err);
     throw new Error('Couldn\'t get Sortable.js');
   });
+  console.log(`Building from Gtihub ${gitUsername}/Sortable#${gitBranch}`);
 }
 
 async function proceed(string) {
