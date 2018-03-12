@@ -3,7 +3,7 @@
 
 <dom-module id="sortable-js">
   <template>
-    <content></content>
+    <slot></slot>
   </template>
 </dom-module>
 <script>
@@ -12,34 +12,36 @@
     is: "sortable-js",
 
     properties: {
-      group             : { type: Object, value: () => {return {name: Math.random()};}, observer: "groupChanged" },
-      sort              : { type: Boolean, value: true, observer: "sortChanged" },
-      disabled          : { type: Boolean, value: false, observer: "disabledChanged" },
-      store             : { type: Object, value: null, observer: "storeChanged" },
-      handle            : { type: String, value: null, observer: "handleChanged" },
-      scrollSensitivity : { type: Number, value: 30, observer: "scrollSensitivityChanged" },
-      scrollSpeed       : { type: Number, value: 10, observer: "scrollSpeedChanged" },
-      ghostClass        : { type: String, value: "sortable-ghost", observer: "ghostClassChanged" },
-      chosenClass       : { type: String, value: "sortable-chosen", observer: "chosenClassChanged" },
-      ignore            : { type: String, value: "a, img", observer: "ignoreChanged" },
-      filter            : { type: Object, value: null, observer: "filterChanged" },
-      animation         : { type: Number, value: 0, observer: "animationChanged" },
-      dropBubble        : { type: Boolean, value: false, observer: "dropBubbleChanged" },
-      dragoverBubble    : { type: Boolean, value: false, observer: "dragoverBubbleChanged" },
-      dataIdAttr        : { type: String, value: "data-id", observer: "dataIdAttrChanged" },
-      delay             : { type: Number, value: 0, observer: "delayChanged" },
-      forceFallback     : { type: Boolean, value: false, observer: "forceFallbackChanged" },
-      fallbackClass     : { type: String, value: "sortable-fallback", observer: "fallbackClassChanged" },
-      fallbackOnBody    : { type: Boolean, value: false, observer: "fallbackOnBodyChanged" },
-      draggable         : {},
-      scroll            : {}
+      group: { type: Number, value: function() { return Math.random() }, observer: 'groupChanged' },
+      sort: { type: Boolean, value: function() { return true }, observer: 'sortChanged' },
+      disabled: { type: Boolean, value: function() { return false }, observer: 'disabledChanged' },
+      store: { type: Number, value: function() { return null }, observer: 'storeChanged' },
+      handle: { type: Number, value: function() { return null }, observer: 'handleChanged' },
+      scroll: { type: Boolean, value: function() { return true }, observer: 'scrollChanged' },
+      scrollSensitivity: { type: Number, value: function() { return 30 }, observer: 'scrollSensitivityChanged' },
+      scrollSpeed: { type: Number, value: function() { return 10 }, observer: 'scrollSpeedChanged' },
+      ghostClass: { type: Number, value: function() { return 'sortable-ghost' }, observer: 'ghostClassChanged' },
+      chosenClass: { type: Number, value: function() { return 'sortable-chosen' }, observer: 'chosenClassChanged' },
+      dragClass: { type: Number, value: function() { return 'sortable-drag' }, observer: 'dragClassChanged' },
+      ignore: { type: Number, value: function() { return 'a, img' }, observer: 'ignoreChanged' },
+      filter: { type: Number, value: function() { return null }, observer: 'filterChanged' },
+      preventOnFilter: { type: Boolean, value: function() { return true }, observer: 'preventOnFilterChanged' },
+      animation: { type: Number, value: function() { return 0 }, observer: 'animationChanged' },
+      dropBubble: { type: Boolean, value: function() { return false }, observer: 'dropBubbleChanged' },
+      dragoverBubble: { type: Boolean, value: function() { return false }, observer: 'dragoverBubbleChanged' },
+      dataIdAttr: { type: Number, value: function() { return 'data-id' }, observer: 'dataIdAttrChanged' },
+      delay: { type: Number, value: function() { return 0 }, observer: 'delayChanged' },
+      forceFallback: { type: Boolean, value: function() { return false }, observer: 'forceFallbackChanged' },
+      fallbackClass: { type: Number, value: function() { return 'sortable-fallback' }, observer: 'fallbackClassChanged' },
+      fallbackOnBody: { type: Boolean, value: function() { return false }, observer: 'fallbackOnBodyChanged' },
+      fallbackTolerance: { type: Number, value: function() { return 0 }, observer: 'fallbackToleranceChanged' },
+      fallbackOffset: { type: Number, value: function() { return {x: 0, y: 0} }, observer: 'fallbackOffsetChanged' }
     },
 
     created: function() {
-      // override default DOM property behavior
+      // Override default DOM property behavior
       Object.defineProperties(this, {
         draggable: { get: function() { return this._draggable || this.getAttribute("draggable") || ">*";}, set: function(value) { this._draggable = value; this.draggableChanged(value);} },
-        scroll: { get: function() { return this._scroll || JSON.parse(this.getAttribute("scroll") || "true"); }, set: function(value) { this._scroll = value; this.scrollChanged(value);} }
       });
     },
 
@@ -66,7 +68,7 @@
 
 
     initialize: function() {
-      var templates = this.querySelectorAll("template[is='dom-repeat']");
+      var templates = this.querySelectorAll(Polymer.Element ? "dom-repeat" : "template[is='dom-repeat']");
       var template = templates[templates.length-1];
 
       var options = {};
@@ -78,6 +80,17 @@
       var eventCallbacks = {
         onUpdate: function (e) {
           if (template) {
+            var elements = _this.children;
+            Array.prototype.filter.call(elements, function(el) {
+              return !el.classList.contains(_this.ghostClass) ||
+                     !el.nodeName.toLowerCase() === 'tempalte' ||
+                     !el.nodeName.toLowerCase() === 'dom-repeat';
+            });
+            if (e.oldIndex < e.newIndex) {
+              elements[e.oldIndex].parentNode.insertBefore(elements[e.newIndex], elements[e.oldIndex]);
+            } else {
+              elements[e.oldIndex].parentNode.insertBefore(elements[e.newIndex], elements[e.oldIndex].nextSibling);
+            }
             template.splice("items", e.newIndex, 0, template.splice("items", e.oldIndex, 1)[0]);
 						/*
             if (manuallyHandleUpdateEvents) {
@@ -92,7 +105,7 @@
 
         onAdd: function(e) {
           if (template) {
-            var froms = e.from.querySelectorAll("template[is='dom-repeat']");
+            var froms = e.from.querySelectorAll(Polymer.Element ? "dom-repeat" : "template[is='dom-repeat']");
             var from = froms[froms.length-1];
             var model = from.modelForElement(e.item);
             template.splice("items", e.newIndex, 0, model.item);
@@ -118,6 +131,12 @@
         },
 
         onStart: function(e) {
+          /* _this._elements = [];
+          var elements = _this.querySelectorAll(':not(dom-repeat):not(template):not(.'+ _this.ghostClass + ')');
+          Array.prototype.forEach.call(elements, function(element) {
+            _this._elements.push(element);
+          }); */
+
           _this.fire("start", e);
         },
 
@@ -155,31 +174,57 @@
       }
     },
 
-    groupChanged             : function(value) { 
-      if(typeof(value) === 'string') {
-        return this.set('group', {name: value});
+    groupChanged: function(value) { 
+      if (typeof value === 'string') {
+        return this.set('group', { name: value });
       }
-      this.sortable && this.sortable.option("group",  value );
+      this.sortable && this.sortable.option("group",  value);
     },
-    sortChanged              : function(value) { this.sortable && this.sortable.option("sort", value); },
-    disabledChanged          : function(value) { this.sortable && this.sortable.option("disabled", value); },
-    storeChanged             : function(value) { this.sortable && this.sortable.option("store", value); },
-    handleChanged            : function(value) { this.sortable && this.sortable.option("handle", value); },
-    scrollChanged           : function(value) { this.sortable && this.sortable.option("scroll", value); },
-    scrollSensitivityChanged : function(value) { this.sortable && this.sortable.option("scrollSensitivity", value); },
-    scrollSpeedChanged       : function(value) { this.sortable && this.sortable.option("scrollSpeed", value); },
-    draggableChanged        : function(value) { this.sortable && this.sortable.option("draggable", value); },
-    ghostClassChanged        : function(value) { this.sortable && this.sortable.option("ghostClass", value); },
-    chosenClassChanged       : function(value) { this.sortable && this.sortable.option("chosenClass", value); },
-    ignoreChanged            : function(value) { this.sortable && this.sortable.option("ignore", value); },
-    filterChanged            : function(value) { this.sortable && this.sortable.option("filter", value); },
-    animationChanged         : function(value) { this.sortable && this.sortable.option("animation", value); },
-    dropBubbleChanged        : function(value) { this.sortable && this.sortable.option("dropBubble", value); },
-    dragoverBubbleChanged    : function(value) { this.sortable && this.sortable.option("dragoverBubble", value); },
-    dataIdAttrChanged        : function(value) { this.sortable && this.sortable.option("dataIdAttr", value); },
-    delayChanged             : function(value) { this.sortable && this.sortable.option("delay", value); },
-    forceFallbackChanged     : function(value) { this.sortable && this.sortable.option("forceFallback", value); },
-    fallbackClassChanged     : function(value) { this.sortable && this.sortable.option("fallbackClass", value); },
-    fallbackOnBodyChanged    : function(value) { this.sortable && this.sortable.option("fallbackOnBody", value); }
+
+    sortChanged: function(value) { this.sortable && this.sortable.option("sort", value); },
+
+    disabledChanged: function(value) { this.sortable && this.sortable.option("disabled", value); },
+
+    storeChanged: function(value) { this.sortable && this.sortable.option("store", value); },
+
+    handleChanged: function(value) { this.sortable && this.sortable.option("handle", value); },
+
+    scrollChanged: function(value) { this.sortable && this.sortable.option("scroll", value); },
+
+    scrollSensitivityChanged: function(value) { this.sortable && this.sortable.option("scrollSensitivity", value); },
+
+    scrollSpeedChanged: function(value) { this.sortable && this.sortable.option("scrollSpeed", value); },
+
+    ghostClassChanged: function(value) { this.sortable && this.sortable.option("ghostClass", value); },
+
+    chosenClassChanged: function(value) { this.sortable && this.sortable.option("chosenClass", value); },
+
+    dragClassChanged: function(value) { this.sortable && this.sortable.option("dragClass", value); },
+
+    ignoreChanged: function(value) { this.sortable && this.sortable.option("ignore", value); },
+
+    filterChanged: function(value) { this.sortable && this.sortable.option("filter", value); },
+
+    preventOnFilterChanged: function(value) { this.sortable && this.sortable.option("preventOnFilter", value); },
+
+    animationChanged: function(value) { this.sortable && this.sortable.option("animation", value); },
+
+    dropBubbleChanged: function(value) { this.sortable && this.sortable.option("dropBubble", value); },
+
+    dragoverBubbleChanged: function(value) { this.sortable && this.sortable.option("dragoverBubble", value); },
+
+    dataIdAttrChanged: function(value) { this.sortable && this.sortable.option("dataIdAttr", value); },
+
+    delayChanged: function(value) { this.sortable && this.sortable.option("delay", value); },
+
+    forceFallbackChanged: function(value) { this.sortable && this.sortable.option("forceFallback", value); },
+
+    fallbackClassChanged: function(value) { this.sortable && this.sortable.option("fallbackClass", value); },
+
+    fallbackOnBodyChanged: function(value) { this.sortable && this.sortable.option("fallbackOnBody", value); },
+
+    fallbackToleranceChanged: function(value) { this.sortable && this.sortable.option("fallbackTolerance", value); },
+
+    fallbackOffsetChanged: function(value) { this.sortable && this.sortable.option("fallbackOffset", value); }
   });
 </script>

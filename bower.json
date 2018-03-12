@@ -25,7 +25,15 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "polymer/polymer#^1.6.0",
-    "Sortable": "sortablejs#^1.4.2"
+    "polymer": "polymer/polymer#1.9 - 2",
+    "Sortable": "sortablejs#^1.6.0"
+  },
+  "variants": {
+    "1.x": {
+      "dependencies": {
+        "polymer": "polymer/polymer#1.9",
+        "Sortable": "sortablejs#^1.6.0"
+      }
+    }
   }
 }
